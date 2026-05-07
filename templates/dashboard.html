@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Painel</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f8;
+            padding: 20px;
+        }
+        h2 {
+            color: #333;
+        }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        .box {
+            background: white;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        button {
+            padding: 5px 10px;
+            border: none;
+            background: #007bff;
+            color: white;
+            border-radius: 5px;
+        }
+        input {
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="topbar">
+    <h2>📊 Sistema Escolar</h2>
+    <a href="/logout">Sair</a>
+</div>
+
+<div class="box">
+    <h3>Resumo</h3>
+    <p>Total: {{ total }}</p>
+    <p>Presentes: {{ presentes }}</p>
+    <p>Faltas: {{ faltas }}</p>
+</div>
+
+<div class="box">
+    <h3>Adicionar aluno</h3>
+    <form method="post">
+        <input type="text" name="nome" placeholder="Nome do aluno">
+        <button type="submit">Adicionar</button>
+    </form>
+</div>
+
+<div class="box">
+    <h3>Lista de alunos</h3>
+    <ul>
+        {% for aluno in alunos %}
+        <li>
+            {{ aluno }} - {{ presencas[aluno] }}
+            <form method="post" style="display:inline;">
+                <button name="presenca" value="{{ aluno }}">Presente</button>
+            </form>
+        </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div class="box">
+    <h3>Assistente IA</h3>
+    <form method="post">
+        <input type="text" name="pergunta" placeholder="Faça uma pergunta">
+        <button type="submit">Perguntar</button>
+    </form>
+    <p>{{ resposta_ia }}</p>
+</div>
+
+</body>
+</html>
