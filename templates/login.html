@@ -1,45 +1,129 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-    <style>
-        body {
-            font-family: Arial;
-            background: #f4f6f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
-        .box {
-            background: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
-        input {
-            padding: 10px;
-            margin-bottom: 10px;
-            width: 100%;
-        }
-        button {
-            padding: 10px;
-            width: 100%;
-            background: #007bff;
-            color: white;
-            border: none;
-        }
-    </style>
-</head>
-<body>
+from flask import Flask, render_template, request, redirect, session
+import sqlite3
 
-<div class="box">
-    <h2>🔐 Sistema Escolar</h2>
-    <form method="post">
-        <input type="text" name="user" placeholder="Seu nome">
-        <button type="submit">Entrar</button>
-    </form>
-</div>
+app = Flask(__name__)
+app.secret_key = "a8F!29xQ#KlmP@2026"
 
-</body>
-</html>
+# =========================
+# CRIAR BANCO
+# =========================
+def criar_banco():
+    conn = sqlite3.connect("escola.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS alunos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nome TEXT NOT NULL,
+        presenca TEXT DEFAULT 'Faltou'
+    )
+    """)
+
+    conn.commit()
+    conn.close()
+
+criar_banco()
+
+# =========================
+# LOGIN
+# =========================
+@app.route("/", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        user = request.form["user"]
+
+        if user:
+            session["user"] = user
+            return redirect("/dashboard")
+
+    return render_template("login.html")
+
+# =========================
+# DASHBOARD
+# =========================
+@app.route("/dashboard", methods=["GET", "POST"])
+def dashboard():
+
+    if "user" not in session:
+        return redirect("/")
+
+    resposta_ia = ""
+
+    conn = sqlite3.connect("escola.db")
+    cursor = conn.cursor()
+
+    # -------------------------
+    # ADICIONAR ALUNO
+    # -------------------------
+    if request.method == "POST":
+
+        if "nome" in request.form:
+
+            nome = request.form["nome"]
+
+            cursor.execute(
+                "INSERT INTO alunos(nome) VALUES(?)",
+                (nome,)
+            )
+
+            conn.commit()
+
+        # -------------------------
+        # PRESENÇA
+        # -------------------------
+        if "presenca" in request.form:
+
+            aluno_id = request.form["presenca"]
+
+            cursor.execute(
+                "UPDATE alunos SET presenca='Presente' WHERE id=?",
+                (aluno_id,)
+            )
+
+            conn.commit()
+
+        # -------------------------
+        # IA
+        # -------------------------
+        if "pergunta" in request.form:
+
+            pergunta = request.form["pergunta"].lower()
+
+            cursor.execute("SELECT COUNT(*) FROM alunos")
+            total = cursor.fetchone()[0]
+
+            if "quantos alunos" in pergunta:
+                resposta_ia = f"Tem {total} alunos cadastrados."
+
+            elif "presença" in pergunta:
+
+                cursor.execute(
+                    "SELECT nome, presenca FROM alunos"
+                )
+
+                dados = cursor.fetchall()
+
+                resposta_ia = str(dados)
+
+            else:
+                resposta_ia = "Ainda estou aprendendo..."
+
+    # =========================
+    # BUSCAR ALUNOS
+    # =========================
+    cursor.execute("SELECT * FROM alunos")
+    alunos = cursor.fetchall()
+
+    conn.close()
+
+    return render_template(
+        "dashboard.html",
+        alunos=alunos,
+        resposta_ia=resposta_ia
+    )
+
+# =========================
+# RUN
+# =========================
+if __name__ == "__main__":
+    app.run(debug=True)
