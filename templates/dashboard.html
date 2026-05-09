@@ -61,13 +61,25 @@
     <h3>Lista de alunos</h3>
     <ul>
         {% for aluno in alunos %}
-        <li>
-            {{ aluno }} - {{ presencas[aluno] }}
-            <form method="post" style="display:inline;">
-                <button name="presenca" value="{{ aluno }}">Presente</button>
-            </form>
-        </li>
-        {% endfor %}
+
+<li>
+
+    {{ aluno[1] }} - {{ aluno[2] }}
+
+    <form method="post" style="display:inline;">
+
+        <button
+            name="presenca"
+            value="{{ aluno[0] }}"
+        >
+            Marcar Presença
+        </button>
+
+    </form>
+
+</li>
+
+{% endfor %}
     </ul>
 </div>
 
