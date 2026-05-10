@@ -13,7 +13,7 @@ app.secret_key = "a8F!29xQ#KlmP@2026"
 
 def criar_banco():
 
-    conn = sqlite3.connect("escola.db")
+    conn = sqlite3.connect("novo_escola.db")
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -72,7 +72,7 @@ def dashboard():
 
     resposta_ia = ""
 
-    conn = sqlite3.connect("escola.db")
+    conn = sqlite3.connect("novo_escola.db")
     cursor = conn.cursor()
 
     # =====================================
