@@ -2,10 +2,15 @@ from flask import Flask, render_template, request, redirect, session
 import sqlite3
 
 app = Flask(__name__)
-
-print("VERSAO NOVA ATIVA")
-
 app.secret_key = "a8F!29xQ#KlmP@2026"
+
+print("🔥 VERSAO FASE 3 - NOTAS ATIVA 🔥")
+
+# =====================================
+# NOME DO BANCO NOVO
+# =====================================
+
+BANCO = "novo_escola.db"
 
 # =====================================
 # CRIAR BANCO
@@ -13,7 +18,8 @@ app.secret_key = "a8F!29xQ#KlmP@2026"
 
 def criar_banco():
 
-    conn = sqlite3.connect("novo_escola.db")
+    conn = sqlite3.connect(BANCO)
+
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -72,7 +78,8 @@ def dashboard():
 
     resposta_ia = ""
 
-    conn = sqlite3.connect("novo_escola.db")
+    conn = sqlite3.connect(BANCO)
+
     cursor = conn.cursor()
 
     # =====================================
@@ -112,7 +119,7 @@ def dashboard():
             conn.commit()
 
         # ---------------------------------
-        # ATUALIZAR NOTA
+        # SALVAR NOTA
         # ---------------------------------
 
         if "nota" in request.form:
@@ -136,15 +143,23 @@ def dashboard():
 
             pergunta = request.form["pergunta"].lower()
 
-            cursor.execute("SELECT COUNT(*) FROM alunos")
+            # TOTAL DE ALUNOS
+
+            cursor.execute(
+                "SELECT COUNT(*) FROM alunos"
+            )
 
             total_alunos = cursor.fetchone()[0]
+
+            # QUANTOS ALUNOS
 
             if "quantos alunos" in pergunta:
 
                 resposta_ia = (
                     f"Tem {total_alunos} alunos cadastrados."
                 )
+
+            # PRESENÇA
 
             elif "presença" in pergunta:
 
@@ -155,6 +170,8 @@ def dashboard():
                 dados = cursor.fetchall()
 
                 resposta_ia = str(dados)
+
+            # MÉDIA
 
             elif "média" in pergunta:
 
@@ -171,9 +188,13 @@ def dashboard():
                     f"A média da turma é {media:.1f}"
                 )
 
+            # RESPOSTA PADRÃO
+
             else:
 
-                resposta_ia = "Ainda estou aprendendo..."
+                resposta_ia = (
+                    "Ainda estou aprendendo..."
+                )
 
     # =====================================
     # BUSCAR ALUNOS
@@ -197,9 +218,13 @@ def dashboard():
 
     for aluno in alunos:
 
+        # aluno[2] = presença
+
         if aluno[2] == "Presente":
 
             presentes += 1
+
+        # aluno[3] = nota
 
         soma_notas += aluno[3]
 
@@ -230,4 +255,5 @@ def dashboard():
 # =====================================
 
 if __name__ == "__main__":
+
     app.run(debug=True)
