@@ -2,15 +2,15 @@ from flask import Flask, render_template, request, redirect, session
 import sqlite3
 
 app = Flask(__name__)
-app.secret_key = "123"
+app.secret_key = "123456"
 
-print("🔥 IA MEDIA FIXADA 🔥")
+print("🔥 SISTEMA ESCOLAR LOCAL FUNCIONANDO 🔥")
 
-BANCO = "novo_escola.db"
+BANCO = "escola_local.db"
 
-# =========================
+# =========================================
 # CRIAR BANCO
-# =========================
+# =========================================
 
 def criar_banco():
 
@@ -32,9 +32,9 @@ def criar_banco():
 
 criar_banco()
 
-# =========================
+# =========================================
 # LOGIN
-# =========================
+# =========================================
 
 @app.route("/", methods=["GET", "POST"])
 def login():
@@ -51,9 +51,9 @@ def login():
 
     return render_template("login.html")
 
-# =========================
+# =========================================
 # LOGOUT
-# =========================
+# =========================================
 
 @app.route("/logout")
 def logout():
@@ -62,9 +62,9 @@ def logout():
 
     return redirect("/")
 
-# =========================
+# =========================================
 # DASHBOARD
-# =========================
+# =========================================
 
 @app.route("/dashboard", methods=["GET", "POST"])
 def dashboard():
@@ -78,11 +78,15 @@ def dashboard():
 
     cursor = conn.cursor()
 
-    # -------------------------
-    # ADICIONAR ALUNO
-    # -------------------------
+    # =====================================
+    # FORMULÁRIOS
+    # =====================================
 
     if request.method == "POST":
+
+        # -------------------------
+        # ADICIONAR ALUNO
+        # -------------------------
 
         if "nome" in request.form:
 
@@ -95,9 +99,9 @@ def dashboard():
 
             conn.commit()
 
-    # -------------------------
-    # MARCAR PRESENÇA
-    # -------------------------
+        # -------------------------
+        # MARCAR PRESENÇA
+        # -------------------------
 
         if "presenca" in request.form:
 
@@ -110,9 +114,9 @@ def dashboard():
 
             conn.commit()
 
-    # -------------------------
-    # SALVAR NOTA
-    # -------------------------
+        # -------------------------
+        # SALVAR NOTA
+        # -------------------------
 
         if "nota" in request.form:
 
@@ -127,15 +131,15 @@ def dashboard():
 
             conn.commit()
 
-    # -------------------------
-    # IA
-    # -------------------------
+        # -------------------------
+        # IA
+        # -------------------------
 
         if "pergunta" in request.form:
 
             pergunta = request.form["pergunta"].lower()
 
-            # TOTAL
+            # QUANTOS ALUNOS
 
             if "quantos alunos" in pergunta:
 
@@ -145,11 +149,13 @@ def dashboard():
 
                 total = cursor.fetchone()[0]
 
-                resposta_ia = f"Tem {total} alunos cadastrados."
+                resposta_ia = (
+                    f"Tem {total} alunos cadastrados."
+                )
 
             # PRESENÇA
 
-            elif "presença" in pergunta:
+            elif "presença" in pergunta or "presenca" in pergunta:
 
                 cursor.execute(
                     "SELECT nome, presenca FROM alunos"
@@ -172,15 +178,17 @@ def dashboard():
                 if media is None:
                     media = 0
 
-                resposta_ia = f"A média da turma é {media:.1f}"
+                resposta_ia = (
+                    f"A média da turma é {media:.1f}"
+                )
 
             else:
 
                 resposta_ia = "Ainda estou aprendendo..."
 
-    # =========================
+    # =====================================
     # BUSCAR ALUNOS
-    # =========================
+    # =====================================
 
     cursor.execute("SELECT * FROM alunos")
 
@@ -188,9 +196,9 @@ def dashboard():
 
     conn.close()
 
-    # =========================
+    # =====================================
     # ESTATÍSTICAS
-    # =========================
+    # =====================================
 
     total = len(alunos)
 
@@ -222,9 +230,9 @@ def dashboard():
         media_turma=round(media_turma, 1)
     )
 
-# =========================
+# =========================================
 # RUN
-# =========================
+# =========================================
 
 if __name__ == "__main__":
 
